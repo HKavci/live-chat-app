@@ -1,9 +1,12 @@
 import './App.css';
+import "./style.scss"
+import AppRouter from './router/AppRouter';
+
 
 function App() {
   return (
     <div >
-      
+      <AppRouter />
     </div>
   );
 }
