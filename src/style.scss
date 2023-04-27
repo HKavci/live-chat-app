@@ -1,4 +1,5 @@
-@import "./scss/variables";
+@import "./scss/_variables";
+@import "./scss/_mixins";
 
 .formContainer {
   background-color: $primary-color;
@@ -20,6 +21,7 @@
 
     .logo {
       font-weight: bold;
+      font-size: 24px;
     }
 
     .title {
@@ -77,10 +79,14 @@
     height: 80%;
     display: flex;
     overflow: hidden;
+    @include tablet {
+      width: 90%;
+    }
 
     .sidebar {
       flex: 1;
       background-color: $secondary-color;
+      position: relative;
 
       .navbar {
         display: flex;
@@ -93,6 +99,7 @@
 
         .logo {
           font-weight: bold;
+          @include tablet {display: none;}
         }
 
         .user {
@@ -112,6 +119,11 @@
             color: white;
             border: none;
             cursor: pointer;
+
+            @include tablet {
+              position: absolute;
+              bottom: 10px;
+            }
           }
         }
       }
