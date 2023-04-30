@@ -1,20 +1,50 @@
-import React from 'react'
+import { useContext, useEffect, useState } from "react";
+import { doc, onSnapshot } from "firebase/firestore";
+import { AuthContext } from "../context/authContext";
+import { db } from "../firebase";
+import { ChatContext } from "../context/chatContext";
 
 const Chats = () => {
-  return (
-    <div className='chats'>
-      <div className="userChat">
-        <img
-          src="https://media.licdn.com/dms/image/D4D03AQHSj2GP_WNk6g/profile-displayphoto-shrink_800_800/0/1677167190150?e=1687996800&v=beta&t=eHA0ZweA8nDytAmB5nHDCzabHNqedCV-WdBNunVI2-E"
-          alt=""
-        />
-        <div className="userChatInfo">
-          <span>Hakan</span>
-          <p>Hello</p>
-        </div>
-      </div>
-    </div>
-  )
-}
+  const [chats, setChats] = useState([]);
+  const { currentUser } = useContext(AuthContext);
+  const { dispatch } = useContext(ChatContext);
 
-export default Chats
+
+  useEffect(() => {
+    // getChats ile Firebase veritabanından aktif kullanıcının sohbetlerini alıyoruz. onSnapshot fonksiyonu, userChats in güncellemelerini dinleyerek herhangi bir değişiklik olduğunda verileri yeniden getirir.
+    const getChats = () => {
+      const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
+        setChats(doc.data());
+      });
+
+      return () => {
+        unsub();
+      };
+    };
+    currentUser.uid && getChats();
+  }, [currentUser.uid]);
+
+  const handleSelect = (user) => {
+    dispatch({ type: "CHANGE_USER", payload: user });
+  };
+
+  return (
+    <div className="chats">
+      {Object.entries(chats)?.map((chat) => (
+        <div
+          className="userChat"
+          key={chat[0]}
+          onClick={() => handleSelect(chat[1].userInfo)}
+        >
+          <img src={chat[1].userInfo.photoURL} alt="image" />
+          <div className="userChatInfo">
+            <span>{chat[1].userInfo.displayName}</span>
+            <p>{chat[1].userInfo.lastMessage?.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Chats;

@@ -1,16 +1,30 @@
-import Message from './Message'
+import Message from "./Message";
+import { ChatContext } from "./../context/chatContext";
+import { useContext, useEffect, useState } from "react";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 
 const Messages = () => {
-  return (
-    <div className='messages'>
-        <Message />
-        <Message />
-        <Message />
-        <Message />
-        <Message />
-        <Message />
-    </div>
-  )
-}
+  const [messages, setMessages] = useState([]);
+  const { data } = useContext(ChatContext);
 
-export default Messages
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "chats", data.chatId), (doc) => {
+      doc.exists() && setMessages(doc.data().messages);
+    });
+
+    return () => {
+      unSub();
+    };
+  }, [data.chatId]);
+
+  return (
+    <div className="messages">
+      {messages?.map((message) => (
+        <Message message={message} key={message.id} />
+      ))}
+    </div>
+  );
+};
+
+export default Messages;
