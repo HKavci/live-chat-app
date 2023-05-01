@@ -1,28 +1,39 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../context/authContext";
 import { ChatContext } from "../context/chatContext";
+import { useRef } from "react";
 
 const Message = ({ message }) => {
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
-  console.log(message);
+  const ref = useRef()
+
+  // Sayfa açıldığında ya da mesaj atıldığında son mesaja scroll olması için useRef kullanarak aşağıdaki işlemi yaptık.
+  useEffect(() => {
+    ref?.current?.scrollIntoView({behavior: "smooth"})
+  }, [message])
+  
 
   return (
-    <div className="message owner">
-      {/* <div className="messageInfo">
+    <div
+      ref={ref}
+      className={`message ${message.senderId === currentUser.uid && "owner"}`}
+    >
+      <div className="messageInfo">
         <img
-          src="https://media.licdn.com/dms/image/D4D03AQHSj2GP_WNk6g/profile-displayphoto-shrink_800_800/0/1677167190150?e=1687996800&v=beta&t=eHA0ZweA8nDytAmB5nHDCzabHNqedCV-WdBNunVI2-E"
+          src={
+            message.senderId === currentUser.uid
+              ? currentUser.photoURL
+              : data.user.photoURL
+          }
           alt="image"
         />
         <span>just now</span>
       </div>
       <div className="messageContent">
-        <p>Hello world!</p>
-        <img
-          src="https://media.licdn.com/dms/image/D4D03AQHSj2GP_WNk6g/profile-displayphoto-shrink_800_800/0/1677167190150?e=1687996800&v=beta&t=eHA0ZweA8nDytAmB5nHDCzabHNqedCV-WdBNunVI2-E"
-          alt=""
-        />
-      </div> */}
+        <p>{message.text}</p>
+        {message.img && <img src={message.img} alt="message-img" />}
+      </div>
     </div>
   );
 };
